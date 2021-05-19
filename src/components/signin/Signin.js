@@ -1,13 +1,13 @@
 import React from "react";
 
-export default function Signin() {
+export default function Signin(props) {
   return (
-    <form action="/signin" method="POST">
+    <form onSubmit={props.onSignin}>
       <h2>Sign in</h2>
-      <label for="email">Email</label>
+      <label htmlFor="email">Email</label>
       <input type="text" id="email" name="email"></input>
-      <label for="password">Password</label>
-      <input type="text" id="password" name="password"></input>
+      <label htmlFor="password">Password</label>
+      <input type="password" id="password" name="password"></input>
       <button type="submit">Sign in</button>
     </form>
   );
