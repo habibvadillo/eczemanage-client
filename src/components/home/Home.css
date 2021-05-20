@@ -35,10 +35,6 @@ ul#days {
           justify-content: space-evenly;
 }
 
-ul#days li {
-  border: 1px solid black;
-}
-
 .active {
   background-color: #ccc;
 }
@@ -46,6 +42,7 @@ ul#days li {
 #day {
   border: 1px solid black;
   padding: 10px;
+  min-height: 200px;
 }
 
 p {
@@ -94,10 +91,6 @@ p {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  -webkit-box-orient: vertical;
-  -webkit-box-direction: normal;
-      -ms-flex-direction: column;
-          flex-direction: column;
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
@@ -108,12 +101,48 @@ p {
 #landing a {
   color: white;
   text-decoration: none;
-  background-color: lightblue;
+  background-color: #0084ff;
   border-radius: 5px;
   padding: 4px 6px;
 }
 
 #weekSummary {
   margin-bottom: 20px;
+}
+
+#sleep-form {
+  margin-top: 20px;
+  position: relative;
+  border: 1px solid black;
+  background-color: cadetblue;
+  color: white;
+}
+
+#sleep-form h3 {
+  margin-top: 0px;
+}
+
+#closeSleepForm {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+#meals-form {
+  margin-top: 20px;
+  position: relative;
+  border: 1px solid black;
+  background-color: cadetblue;
+  color: white;
+}
+
+#meals-form h3 {
+  margin-top: 0px;
+}
+
+#closeMealsForm {
+  position: absolute;
+  top: 5px;
+  right: 5px;
 }
 /*# sourceMappingURL=Home.css.map */

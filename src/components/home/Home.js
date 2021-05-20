@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import WeekSleep from "../weeksleep/WeekSleep";
 import axios from "axios";
 import config from "../../config";
 import { Link } from "react-router-dom";
@@ -11,7 +12,7 @@ const Home = (props) => {
 
   const [daysMealsState, updateDaysMealsState] = useState(null);
   const [userMealsState, updateUserMealsState] = useState(null);
-  const [daysState, updateDaysState] = useState(null);
+  const [weekState, updateWeekState] = useState(null);
   const [todayState, updateTodayState] = useState(null);
   const [sleepState, updateSleepState] = useState(null);
 
@@ -44,7 +45,12 @@ const Home = (props) => {
         axios
           .get(`${config.API_URL}/api/days`, { withCredentials: true })
           .then((result) => {
-            updateDaysState(result.data.slice(-7));
+            console.log(
+              result.data.sort((a, b) => a.date.localeCompare(b.date)).slice(-7)
+            );
+            updateWeekState(
+              result.data.sort((a, b) => a.date.localeCompare(b.date)).slice(-7)
+            );
             console.log("days fetched");
             updateTodayState(result.data[result.data.length - 1]);
             updateDaysMealsState(
@@ -60,64 +66,79 @@ const Home = (props) => {
             updateErrorState(errorObj);
           });
       })
-      .catch((errorObj) => {
+      .catch((err) => {
         updateFetchingUserState(false);
         updateFetchingDaysState(false);
-        updateErrorState(errorObj.response.data);
+        console.log(err);
       });
   }, []);
 
   const handleChangeDay = (newDay) => {
     console.log("switch day to ", newDay.date);
-    daysState.forEach((day) => {
+    weekState.forEach((day) => {
       if (day._id === newDay._id) {
+        console.log(newDay.meals);
         updateTodayState(newDay);
-        updateDaysMealsState(newDay.meals.map((m) => m.name));
-        updateSleepState(newDay.sleep);
+        updateDaysMealsState(
+          newDay.meals.map((m) => {
+            if (typeof m === "string") {
+              return m;
+            } else {
+              return m.name;
+            }
+          })
+        );
+        updateSleepState(newDay.sleep || 0);
+        updateShowSleepFormState(false);
+        updateShowMealsFormState(false);
       }
     });
-  };
-  const handleStartDay = () => {
-    let newDay = {
-      date: `${new Date().getDate()}/${
-        new Date().getMonth() + 1
-      }/${new Date().getFullYear()}`,
-      author: userState._id,
-    };
-    console.log(newDay);
-    axios
-      .post(`${config.API_URL}/api/day/start`, newDay, {
-        withCredentials: true,
-      })
-      .then((result) => {
-        updateTodayState(result.data);
-      })
-      .catch((errorObj) => {
-        updateErrorState(errorObj);
-      });
   };
 
   let sleepform = showSleepFormState ? (
     <form
+      id="sleep-form"
       onSubmit={(e) => {
-        updateShowSleepFormState(false);
-        updateSleepState(
+        let newSleep =
           e.target.hours.value * 60 * 60 * 1000 +
-            e.target.minutes.value * 60 * 1000
-        );
+          e.target.minutes.value * 60 * 1000;
+        updateShowSleepFormState(false);
+        updateSleepState(newSleep);
+        let newDays = JSON.parse(JSON.stringify(weekState));
+        newDays.forEach((day) => {
+          if (day._id === todayState._id) {
+            day.sleep = newSleep;
+          }
+        });
+        updateWeekState(newDays);
+        let newTodayState = JSON.parse(JSON.stringify(todayState));
+        newTodayState.sleep = newSleep;
+        console.log(newTodayState);
+        updateTodayState(newTodayState);
         props.submitSleepDuration(e, todayState);
       }}
     >
+      <h3>Edit Sleep for {todayState.date}</h3>
       <label htmlFor="hours">Hours</label>
       <input type="number" name="hours" id="hours"></input>
       <label htmlFor="minutes">Minutes</label>
       <input type="number" name="minutes" id="minutes"></input>
+      <button
+        id="closeSleepForm"
+        onClick={(e) => {
+          e.preventDefault();
+          updateShowSleepFormState(false);
+        }}
+      >
+        Close
+      </button>
       <button type="submit">Submit</button>
     </form>
   ) : null;
 
   let mealsform = showMealsFormState ? (
     <form
+      id="meals-form"
       onSubmit={(e) => {
         updateShowMealsFormState(false);
         let newMeals = Array.from(
@@ -126,7 +147,7 @@ const Home = (props) => {
         );
         console.log(newMeals, todayState);
         updateDaysMealsState(newMeals);
-        let newDaysState = JSON.parse(JSON.stringify(daysState));
+        let newDaysState = JSON.parse(JSON.stringify(weekState));
         newDaysState.forEach((day) => {
           if (day.date === todayState.date) {
             day.meals.length = 0;
@@ -135,10 +156,11 @@ const Home = (props) => {
             });
           }
         });
-        updateDaysState(newDaysState);
+        updateWeekState(newDaysState);
         props.submitMeals(e, todayState);
       }}
     >
+      <h3>Edit meals from {todayState.date}</h3>
       <label htmlFor="meals">Meals</label>
       <select name="meals" id="meals" multiple>
         {userMealsState.map((meal) => {
@@ -149,8 +171,20 @@ const Home = (props) => {
           );
         })}
       </select>
+      <button
+        id="closeMealsForm"
+        onClick={(e) => {
+          e.preventDefault();
+          updateShowMealsFormState(false);
+        }}
+      >
+        Close
+      </button>
       <button type="submit">Submit</button>
-      <Link to="/newmeal">Create a new meal</Link>
+      <p>
+        If you would like to create a brand new meal click{" "}
+        <Link to="/newmeal">here</Link>
+      </p>
     </form>
   ) : null;
 
@@ -169,7 +203,7 @@ const Home = (props) => {
                   updateUserState(null);
                   updateDaysMealsState(null);
                   updateTodayState(null);
-                  updateDaysState(null);
+                  updateWeekState(null);
                   updateShowMenuState(false);
                   props.onSignOut();
                 }}
@@ -185,7 +219,7 @@ const Home = (props) => {
       <header>
         <h1>AD Manager</h1>
         <button id="navButton" onClick={showMenu}>
-          <i class="fa fa-bars"></i>
+          <i className="fa fa-bars"></i>
         </button>
       </header>
       {!userState ? (
@@ -202,10 +236,10 @@ const Home = (props) => {
           <div id="userInfo">
             <p>Hello {userState.name}</p>
           </div>
-          {daysState && todayState ? (
+          {weekState && todayState ? (
             <>
               <ul id="days">
-                {daysState.map((day) => {
+                {weekState.map((day) => {
                   if (day.date === todayState.date) {
                     return (
                       <li
@@ -225,99 +259,116 @@ const Home = (props) => {
                   }
                 })}
               </ul>
-              <div id="weekSummary">
-                <p>
-                  Your average sleep this week was{" "}
-                  {(
-                    daysState
-                      .filter((day) => day.sleep)
-                      .reduce((acc, elem, index, array) => {
-                        return acc + elem.sleep / array.length;
-                      }, 0) /
-                    60 /
-                    60 /
-                    1000
-                  ).toFixed(2)}
-                  hrs
-                </p>
-              </div>
             </>
           ) : null}
           <div id="day">
-            {!todayState ? (
+            {todayState ? (
               <>
-                <button onClick={handleStartDay}>Start Your Day!</button>
+                <div id="sleep">
+                  <h3>Your Sleep</h3>
+                  {!sleepState ? (
+                    <>
+                      <p>You havent logged this night's sleep</p>
+                      {!showSleepFormState ? (
+                        <button
+                          onClick={() => {
+                            updateShowSleepFormState(true);
+                          }}
+                        >
+                          Submit sleep
+                        </button>
+                      ) : null}
+                      {sleepform}
+                    </>
+                  ) : (
+                    <>
+                      <p>
+                        You got {(sleepState / 3600000).toFixed(2)}hrs of Sleep
+                        this night
+                      </p>
+                      {!showSleepFormState ? (
+                        <button
+                          onClick={() => {
+                            updateShowSleepFormState(true);
+                          }}
+                        >
+                          Edit Sleep
+                        </button>
+                      ) : null}
+                      {sleepform}
+                    </>
+                  )}
+                </div>
+                <div id="meals">
+                  <h3>Your Meals</h3>
+                  {!daysMealsState ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          updateShowMealsFormState(true);
+                        }}
+                      >
+                        What did you eat on this day?
+                      </button>
+                      {mealsform}
+                    </>
+                  ) : daysMealsState.length === 0 ? (
+                    <>
+                      <p>You havent added any meals for this day</p>
+                      <button
+                        onClick={() => {
+                          updateShowMealsFormState(true);
+                        }}
+                      >
+                        Add one
+                      </button>
+                      {mealsform}
+                    </>
+                  ) : (
+                    <>
+                      <p>On this day, you had</p>
+                      <ul>
+                        {daysMealsState.map((meal) => (
+                          <li key={meal}>{meal}</li>
+                        ))}
+                      </ul>
+                      <button
+                        onClick={() => {
+                          updateShowMealsFormState(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      {mealsform}
+                    </>
+                  )}
+                </div>
               </>
             ) : null}
-            {!sleepState ? (
-              <>
-                <button
-                  onClick={() => {
-                    updateShowSleepFormState(true);
-                  }}
-                >
-                  Submit this nights sleep
-                </button>
-                {sleepform}
-              </>
-            ) : (
-              <>
-                <p>
-                  You got {(sleepState / 3600000).toFixed(2)}hrs of Sleep this
-                  night
-                </p>
-                <button
-                  onClick={() => {
-                    updateShowSleepFormState(true);
-                  }}
-                >
-                  Edit
-                </button>
-                {sleepform}
-              </>
-            )}
-            {!daysMealsState ? (
-              <>
-                <button
-                  onClick={() => {
-                    updateShowMealsFormState(true);
-                  }}
-                >
-                  What did you eat on this day?
-                </button>
-                {mealsform}
-              </>
-            ) : daysMealsState.length === 0 ? (
-              <>
-                <p>You havent added any meals for this day</p>
-                <button
-                  onClick={() => {
-                    updateShowMealsFormState(true);
-                  }}
-                >
-                  Add one
-                </button>
-                {mealsform}
-              </>
-            ) : (
-              <>
-                <p>Today, you had</p>
-                <ul>
-                  {daysMealsState.map((meal) => (
-                    <li key={meal}>{meal}</li>
-                  ))}
-                </ul>
-                <button
-                  onClick={() => {
-                    updateShowMealsFormState(true);
-                  }}
-                >
-                  Edit
-                </button>
-                {mealsform}
-              </>
-            )}
           </div>
+          {weekState && todayState ? (
+            <div id="weekSummary">
+              <h2>Your weekly sleep chart</h2>
+              <p>
+                Average:
+                {(
+                  weekState
+                    .filter((day) => day.sleep)
+                    .reduce((acc, elem, index, array) => {
+                      return acc + elem.sleep / array.length;
+                    }, 0) /
+                  60 /
+                  60 /
+                  1000
+                ).toFixed(2)}
+                hrs
+              </p>
+              <WeekSleep
+                days={weekState.map((day) => day.date)}
+                sleep={weekState.map((day) => day.sleep / 3600000)}
+              ></WeekSleep>
+            </div>
+          ) : null}
         </>
       )}
     </>
