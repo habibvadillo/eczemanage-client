@@ -1,3 +1,10 @@
+form {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 50%;
+  margin: 0 auto;
+}
 button[type="submit"] {
   margin-top: 5px;
   font-weight: bold;
@@ -7,4 +14,3 @@ button[type="submit"] {
   border-radius: 5px;
   background-color: black;
 }
-/*# sourceMappingURL=signin.css.map */

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import config from "../../config";
+import "./EditMeal.css";
 
 export default function EditMeal(props) {
-  const [mealState, updateMealState] = useState();
+  const [mealState, updateMealState] = useState(props.meal);
   useEffect(() => {
     axios
-      .get(`${config.API_URL}/api/meals/${props.match.params.id}`)
+      .get(`${config.API_URL}/api/meals/${mealState._id}`)
       .then((result) => {
         console.log(result.data);
         updateMealState(result.data);
@@ -19,6 +20,15 @@ export default function EditMeal(props) {
     console.log(text);
     let cloneMealState = JSON.parse(JSON.stringify(mealState));
     cloneMealState.name = text;
+
+    updateMealState(cloneMealState);
+  };
+
+  const handleDescriptionChange = (event) => {
+    let text = event.target.value;
+    console.log(text);
+    let cloneMealState = JSON.parse(JSON.stringify(mealState));
+    cloneMealState.description = text;
 
     updateMealState(cloneMealState);
   };
@@ -52,7 +62,17 @@ export default function EditMeal(props) {
             e.preventDefault();
             props.onUpdate(mealState._id, e);
           }}
+          id="edit-meal-form"
         >
+          <button
+            className="closeEditMealForm"
+            onClick={(e) => {
+              e.preventDefault();
+              props.onCloseEditMealForm();
+            }}
+          >
+            x
+          </button>
           <label htmlFor="name">Meal Name</label>
           <input
             onChange={handleNameChange}
@@ -62,6 +82,14 @@ export default function EditMeal(props) {
             value={`${mealState.name}`}
             required
           ></input>
+          <label htmlFor="description">Description</label>
+          <textarea
+            onChange={handleDescriptionChange}
+            type="text"
+            name="description"
+            id="description"
+            value={`${mealState.description}`}
+          ></textarea>
           <label htmlFor="ingredients">Ingredients</label>
           {mealState.ingredients.map((ing, i) => (
             <React.Fragment key={i}>
@@ -75,8 +103,10 @@ export default function EditMeal(props) {
               />
             </React.Fragment>
           ))}
-          <button onClick={addIngredientInput}>Add Ingredient</button>
-          <button onClick={removeIngredientInput}>Remove Ingredient</button>
+          <div className="add-remove-buttons">
+            <button onClick={addIngredientInput}>Add Ingredient</button>
+            <button onClick={removeIngredientInput}>Remove Ingredient</button>
+          </div>
           <button type="submit">Update Meal</button>
         </form>
       )}

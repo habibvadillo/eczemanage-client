@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./CreateMeal.css";
 
 export default function CreateMeal(props) {
   const [ingreInputState, updateIngreInputState] = useState({
@@ -22,7 +23,17 @@ export default function CreateMeal(props) {
     });
   };
   return (
-    <form onSubmit={props.onCreate}>
+    <form onSubmit={props.onCreate} className="create-meal-form">
+      <button
+        className="closeCreateMealForm"
+        onClick={(e) => {
+          e.preventDefault();
+          props.onCloseCreateMealForm();
+        }}
+      >
+        x
+      </button>
+      <h3>Create Meal</h3>
       <label htmlFor="name">Meal Name</label>
       <input
         type="text"
@@ -31,6 +42,13 @@ export default function CreateMeal(props) {
         placeholder="Name"
         required
       ></input>
+      <label htmlFor="description">Meal Description</label>
+      <textarea
+        type="text"
+        name="description"
+        id="description"
+        placeholder="Description"
+      ></textarea>
       <label htmlFor="ingredients">Ingredients</label>
       {ingreInputState.ingreInputs.map((inp, i) => (
         <React.Fragment key={i}>
@@ -43,8 +61,10 @@ export default function CreateMeal(props) {
           />
         </React.Fragment>
       ))}
-      <button onClick={addIngredient}>Add Ingredient</button>
-      <button onClick={removeIngredient}>Remove Ingredient</button>
+      <div className="add-remove-buttons">
+        <button onClick={addIngredient}>Add Ingredient</button>
+        <button onClick={removeIngredient}>Remove Ingredient</button>
+      </div>
       <button type="submit">Add Meal</button>
     </form>
   );

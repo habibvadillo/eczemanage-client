@@ -1,0 +1,35 @@
+#meal-details {
+  padding: 20px;
+  width: 70%;
+  position: relative;
+  border: 1px solid black;
+  box-shadow: rgba(99, 99, 99, 1) 0px 2px 8px 0px;
+  background-color: whitesmoke;
+  color: black;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 20% auto;
+
+  a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+  }
+}
+#meal-details-buttons {
+  width: 200px;
+  display: flex;
+  justify-content: space-around;
+}
+.closeMealDetails {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+#meal-ingredients-list {
+  margin: 0;
+  list-style: none;
+  padding: 0;
+}

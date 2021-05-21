@@ -1,0 +1,25 @@
+.closeEditMealForm {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+#edit-meal-form {
+  margin-top: 20%;
+  position: relative;
+  border: 1px solid black;
+  background-color: cadetblue;
+  color: white;
+  h3 {
+    margin-top: 0px;
+  }
+  button[type="submit"] {
+    margin-top: 5px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    padding: 3px 5px;
+    border-radius: 5px;
+    background-color: black;
+  }
+}

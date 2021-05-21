@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Switch, Route, useHistory, withRouter } from "react-router-dom";
-import Error from "./components/error/Error";
 import Signup from "./components/signup/Signup";
 import Signin from "./components/signin/Signin";
 import Home from "./components/home/Home";
@@ -123,103 +122,6 @@ function App(props) {
       });
   };
 
-  const handleCreateMeal = (e) => {
-    e.preventDefault();
-    let newMeal = {
-      name: e.target.name.value,
-      ingredients:
-        e.target.ingredients.length !== undefined
-          ? []
-          : e.target.ingredients.value,
-      author: userState._id,
-    };
-    if (typeof newMeal.ingredients === "object") {
-      e.target.ingredients.forEach((i) => {
-        newMeal.ingredients.push(i.value);
-      });
-    }
-    console.log(newMeal, "pressing button!");
-    axios
-      .post(`${config.API_URL}/api/createmeal`, newMeal, {
-        withCredentials: true,
-      })
-      .then((meal) => {
-        let newMealsState = [...mealsState];
-        newMealsState.push(meal.data);
-        updateMealsState(newMealsState);
-        history.push("/meals");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleDeleteMeal = (id) => {
-    console.log("deleting!");
-    axios
-      .delete(
-        `${config.API_URL}/api/meals/${id}`,
-        {},
-        { withCredentials: true }
-      )
-      .then((result) => {
-        let newMealsState = mealsState.filter((m) => m._id !== result.data._id);
-        updateMealsState(newMealsState);
-        history.push("/meals");
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
-  const handleEditMeal = (id, e) => {
-    e.preventDefault();
-    updateFetchingMealsState(true);
-    let newMeal = {
-      name: e.target.name.value,
-      ingredients:
-        e.target.ingredients.length !== undefined
-          ? []
-          : e.target.ingredients.value,
-      author: userState._id,
-    };
-    if (typeof newMeal.ingredients === "object") {
-      e.target.ingredients.forEach((i) => {
-        newMeal.ingredients.push(i.value);
-      });
-    }
-    console.log(newMeal);
-    axios
-      .patch(
-        `${config.API_URL}/api/meals/${id}`,
-        {
-          name: newMeal.name,
-          ingredients: newMeal.ingredients,
-          author: newMeal.author,
-        },
-        {
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        let edittedMeal = response.data;
-        let newMealsState = mealsState.map((meal) => {
-          if (edittedMeal._id === meal._id) {
-            meal.name = edittedMeal.name;
-            meal.ingredients.length = 0;
-            edittedMeal.ingredients.forEach((i) => {
-              meal.ingredients.push(i);
-            });
-          }
-          return meal;
-        });
-        updateMealsState(newMealsState);
-        updateFetchingMealsState(false);
-        history.push("/meals");
-      })
-      .catch((err) => {});
-  };
-
   const handleStartDay = () => {
     let newDay = {
       date: `${new Date().getDate()}/${
@@ -311,30 +213,11 @@ function App(props) {
         )}
       />
       <Route
-        path="/newmeal"
-        render={() => (
-          <>
-            <Header />
-            <h1>New Meal</h1>
-            <CreateMeal onCreate={handleCreateMeal} />
-          </>
-        )}
-      />
-      <Route
-        path="/meals/edit/:id/"
-        render={(routeProps) => (
-          <>
-            <Header />
-            <EditMeal onUpdate={handleEditMeal} {...routeProps} />
-          </>
-        )}
-      />
-      <Route
         path="/meals/:id"
         render={(routeProps) => (
           <>
             <Header />
-            <Meal onDelete={handleDeleteMeal} {...routeProps} />
+            <Meal {...routeProps} />
           </>
         )}
       />
@@ -343,7 +226,6 @@ function App(props) {
         render={() => (
           <>
             <Header />
-            <h1>Meals</h1>
             <Meals meals={mealsState} loading={fetchingMealsState} />
           </>
         )}

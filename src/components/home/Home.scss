@@ -1,7 +1,12 @@
+$main-content-width: 80%;
+
 body {
   padding: 20px;
 }
-h1 {
+h1,
+h2,
+h3,
+h4 {
   display: inline;
   margin: 0px auto;
 }
@@ -25,19 +30,19 @@ nav {
 
 ul#days {
   padding: 0;
+  margin-bottom: 0;
   list-style: none;
   display: flex;
   justify-content: space-evenly;
+  li {
+    padding: 5px;
+    border-radius: 10px 10px 0px 0px;
+  }
 }
 .active {
   background-color: #ccc;
 }
 
-#day {
-  border: 1px solid black;
-  padding: 10px;
-  min-height: 200px;
-}
 p {
   margin: 0px;
 }
@@ -52,8 +57,8 @@ p {
   display: hidden;
 }
 
-#navButton {
-  z-index: 101;
+.navButton {
+  z-index: 99;
   position: absolute;
   top: 20px;
   right: 20px;
@@ -63,8 +68,8 @@ p {
 #dropdown {
   width: 60%;
   height: 100%;
-  background-color: grey;
-  position: absolute;
+  background-color: rgb(212, 212, 212);
+  position: fixed;
   right: 0px;
   top: 0px;
   z-index: 100;
@@ -74,17 +79,23 @@ p {
       margin-top: 30px;
     }
   }
+  footer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+  }
 }
 #landing {
   font-size: 28px;
   margin-top: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: flex-start;
   a {
+    margin: 15px;
     color: white;
     text-decoration: none;
-    background-color: rgb(0, 132, 255);
+    background-color: black;
     border-radius: 5px;
     padding: 4px 6px;
   }
@@ -94,7 +105,7 @@ p {
 }
 
 #sleep-form {
-  margin-top: 20px;
+  margin-top: 20%;
   position: relative;
   border: 1px solid black;
   background-color: cadetblue;
@@ -111,7 +122,7 @@ p {
 }
 
 #meals-form {
-  margin-top: 20px;
+  margin-top: 20%;
   position: relative;
   border: 1px solid black;
   background-color: cadetblue;
@@ -125,4 +136,80 @@ p {
   position: absolute;
   top: 5px;
   right: 5px;
+}
+#day {
+  border: 1px solid grey;
+  border-radius: 5px;
+  box-shadow: rgba(99, 99, 99, 0.4) 0px 2px 8px 0px;
+  padding: 10px;
+  height: auto;
+  margin-bottom: 20px;
+}
+#sleep {
+  padding: 10px;
+  height: 100px;
+}
+#meals {
+  padding: 10px;
+  height: 100px;
+  ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    li {
+      font-weight: bold;
+      margin-right: 10px;
+    }
+  }
+}
+
+.my-modal {
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.each-meal {
+  padding: 10px 0;
+}
+
+.edit-meal-button {
+  font-weight: bold;
+  color: white;
+  border: none;
+  margin-top: 5px;
+  padding: 3px 5px;
+  border-radius: 5px;
+  width: auto;
+  background-color: black;
+  margin-right: 10px;
+}
+
+.delete-meal-button {
+  font-weight: bold;
+  color: white;
+  border: none;
+  margin-top: 5px;
+  padding: 3px 5px;
+  border-radius: 5px;
+  width: auto;
+  background-color: red;
+}
+
+#create-new-meal-button {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: white;
+  border: none;
+  padding: 3px 5px;
+  border-radius: 5px;
+  width: auto;
+  background-color: black;
 }
